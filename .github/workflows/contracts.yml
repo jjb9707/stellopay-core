@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Check contract documentation
+        run: python3 tools/doc_checker/run_ci.py
+        continue-on-error: true
+
       - name: Reject committed Cargo build output
         run: bash scripts/check-no-committed-build-output.sh
 
