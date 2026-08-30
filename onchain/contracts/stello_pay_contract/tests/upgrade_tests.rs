@@ -2,10 +2,7 @@
 
 use proptest::prelude::*;
 use rbac::{RbacContract, RbacContractClient, Role};
-use soroban_sdk::{
-    testutils::{Address as _, Ledger},
-    Address, BytesN, Env,
-};
+use soroban_sdk::{testutils::Address as _, Address, BytesN, Env};
 use stello_pay_contract::{storage::PayrollError, PayrollContract, PayrollContractClient};
 
 const NEW_CONTRACT_WASM: &[u8] = include_bytes!("./stello_pay_contract.wasm");
@@ -24,7 +21,7 @@ fn setup(env: &Env) -> (PayrollContractClient<'_>, Address) {
 }
 
 fn deploy_rbac(env: &Env) -> (RbacContractClient<'_>, Address) {
-    let id = env.register_contract(None, RbacContract);
+    let id = env.register(RbacContract, ());
     let client = RbacContractClient::new(env, &id);
     let owner = Address::generate(env);
     client.initialize(&owner);

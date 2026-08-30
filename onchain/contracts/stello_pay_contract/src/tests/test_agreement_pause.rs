@@ -11,7 +11,7 @@ fn create_test_env() -> (
     PayrollContractClient<'static>,
 ) {
     let env = Env::default();
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
 
     let employer = Address::generate(&env);

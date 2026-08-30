@@ -15,7 +15,7 @@ use crate::mock_contract::{UpgradeableContract, UpgradeableContractClient};
 fn test_initial_version_set() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -31,7 +31,7 @@ fn test_initial_version_set() {
 fn test_get_contract_version() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -50,7 +50,7 @@ fn test_get_contract_version() {
 fn test_version_increments_on_upgrade() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -85,7 +85,7 @@ fn test_admin_can_authorize_upgrade() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -107,7 +107,7 @@ fn test_non_admin_cannot_authorize() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -126,7 +126,7 @@ fn test_upgrade_authorized_event() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -159,7 +159,7 @@ fn test_upgrade_authorized_event() {
 fn test_existing_agreements_persist() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -189,7 +189,7 @@ fn test_existing_agreements_persist() {
 fn test_employee_data_persists() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -219,7 +219,7 @@ fn test_employee_data_persists() {
 fn test_balances_persist() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -248,7 +248,7 @@ fn test_balances_persist() {
 fn test_settings_persist() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -282,7 +282,7 @@ fn test_settings_persist() {
 fn test_migration_functions_work() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -301,7 +301,7 @@ fn test_migration_functions_work() {
 fn test_migration_preserves_all_data() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -356,7 +356,7 @@ fn test_migration_preserves_all_data() {
 fn test_migration_can_run_multiple_times_safely() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, UpgradeableContract);
+    let contract_id = env.register(UpgradeableContract, ());
     let client = UpgradeableContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);

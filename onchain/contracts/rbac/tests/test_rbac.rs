@@ -18,7 +18,7 @@ fn create_env() -> Env {
 }
 
 fn setup_contract(env: &Env) -> (Address, RbacContractClient<'_>, Address) {
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(env, &contract_id);
     let owner = Address::generate(env);
     client.initialize(&owner);
@@ -60,7 +60,7 @@ fn test_owner_query_returns_bootstrap_admin() {
 #[should_panic(expected = "Already initialized")]
 fn test_initialize_twice_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let owner = Address::generate(&env);
     client.initialize(&owner);
@@ -71,7 +71,7 @@ fn test_initialize_twice_fails() {
 #[should_panic(expected = "Already initialized")]
 fn test_reinitialize_with_different_owner_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let owner1 = Address::generate(&env);
     let owner2 = Address::generate(&env);
@@ -720,7 +720,7 @@ fn test_renounce_role_admin_delegate_not_protected() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_renounce_role_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
 
@@ -881,7 +881,7 @@ fn test_accept_ownership_no_event_on_failure() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_grant_role_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -892,7 +892,7 @@ fn test_grant_role_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_revoke_role_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -903,7 +903,7 @@ fn test_revoke_role_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_has_role_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     client.has_role(&a, &Role::Employee);
@@ -913,7 +913,7 @@ fn test_has_role_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_require_role_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     client.require_role(&a, &Role::Employee);
@@ -923,7 +923,7 @@ fn test_require_role_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_get_roles_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     client.get_roles(&a);
@@ -933,7 +933,7 @@ fn test_get_roles_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_bulk_grant_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -944,7 +944,7 @@ fn test_bulk_grant_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_bulk_revoke_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -955,7 +955,7 @@ fn test_bulk_revoke_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_revoke_all_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -966,7 +966,7 @@ fn test_revoke_all_before_init_fails() {
 #[should_panic(expected = "Contract not initialized")]
 fn test_transfer_ownership_before_init_fails() {
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -1635,7 +1635,7 @@ fn test_override_safety_get_roles_updates_after_revoke() {
 fn test_override_safety_owner_panics_before_init() {
     // @invariant: owner() panics before initialize.
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let _ = client.owner();
 }
@@ -1645,7 +1645,7 @@ fn test_override_safety_owner_panics_before_init() {
 fn test_override_safety_get_roles_panics_before_init() {
     // @invariant: get_roles panics before initialize.
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let _ = client.get_roles(&a);
@@ -1656,7 +1656,7 @@ fn test_override_safety_get_roles_panics_before_init() {
 fn test_override_safety_require_role_panics_before_init() {
     // @invariant: require_role panics before initialize.
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     client.require_role(&a, &Role::Employee);
@@ -1667,7 +1667,7 @@ fn test_override_safety_require_role_panics_before_init() {
 fn test_override_safety_accept_ownership_panics_before_init() {
     // @invariant: accept_ownership panics before initialize.
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     client.accept_ownership(&a);
@@ -1678,7 +1678,7 @@ fn test_override_safety_accept_ownership_panics_before_init() {
 fn test_override_safety_transfer_ownership_panics_before_init() {
     // @invariant: transfer_ownership panics before initialize.
     let env = create_env();
-    let contract_id = env.register_contract(None, RbacContract);
+    let contract_id = env.register(RbacContract, ());
     let client = RbacContractClient::new(&env, &contract_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);

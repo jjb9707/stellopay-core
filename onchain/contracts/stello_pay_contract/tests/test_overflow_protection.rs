@@ -17,7 +17,7 @@ use stello_pay_contract::{
 };
 
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>, Address) {
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = Address::generate(env);
     client.initialize(&owner);
@@ -158,6 +158,6 @@ fn test_milestone_amount_summation_normal_amounts_ok() {
     client.add_milestone(&agreement_id, &100i128);
     client.add_milestone(&agreement_id, &200i128);
     client.add_milestone(&agreement_id, &300i128);
-    // No panic on overflow means normal amounts are unaffected.
-    assert!(true);
+    // Reaching this point proves normal amounts remain unaffected by the
+    // overflow-focused setup above.
 }

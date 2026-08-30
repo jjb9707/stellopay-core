@@ -83,7 +83,7 @@ const QUORUM_WINDOW: u64 = 60; // 1 minute
 
 /// Deploys and initialises the payroll contract.  Returns `(contract_id, owner, client)`.
 fn deploy_payroll(env: &Env) -> (Address, Address, PayrollContractClient<'static>) {
-    let id = env.register_contract(None, PayrollContract);
+    let id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &id);
     let owner = Address::generate(env);
     client.initialize(&owner);
@@ -96,7 +96,7 @@ fn deploy_oracle(
     env: &Env,
     payroll_id: &Address,
 ) -> (Address, Address, PriceOracleContractClient<'static>) {
-    let id = env.register_contract(None, PriceOracleContract);
+    let id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(env, &id);
     let owner = Address::generate(env);
     client.initialize(&owner, payroll_id);

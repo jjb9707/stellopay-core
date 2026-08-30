@@ -31,7 +31,7 @@ fn create_test_address(env: &Env) -> Address {
 
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = create_test_address(env);
     client.initialize(&owner);

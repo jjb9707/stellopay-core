@@ -46,7 +46,7 @@ fn setup_payroll(env: &Env) -> (Address, PayrollContractClient<'static>, Address
 /// Creates a 2-of-3 multisig and returns (contract_id, client, signers[3]).
 fn setup_multisig(env: &Env) -> (Address, MultisigContractClient<'static>, Vec<Address>) {
     #[allow(deprecated)]
-    let id = env.register_contract(None, MultisigContract);
+    let id = env.register(MultisigContract, ());
     let client = MultisigContractClient::new(env, &id);
     let owner = Address::generate(env);
     let mut signers = Vec::new(env);

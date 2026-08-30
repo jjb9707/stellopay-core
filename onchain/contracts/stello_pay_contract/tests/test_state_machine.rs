@@ -99,7 +99,7 @@ fn mint(env: &Env, token: &Address, to: &Address, amount: i128) {
 
 /// Deploys and initializes the payroll contract.
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = create_address(env);
     client.initialize(&owner);

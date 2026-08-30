@@ -46,7 +46,7 @@ fn mint(env: &Env, token: &Address, to: &Address, amount: i128) {
 /// Sets up the contract and returns contract ID and client
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = create_test_address(env);
     client.initialize(&owner);
@@ -57,7 +57,7 @@ fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
 fn has_event(env: &Env, event_name: &str) -> bool {
     let events = env.events().all();
     events.iter().any(|e| {
-        if e.1.len() > 0 {
+        if !e.1.is_empty() {
             let topic = e.1.get(0).unwrap();
             if let Ok(sym) = Symbol::try_from_val(env, &topic) {
                 return sym.to_string() == event_name;
@@ -74,7 +74,7 @@ fn find_event(
 ) -> Option<(Address, Vec<soroban_sdk::Val>, soroban_sdk::Val)> {
     let events = env.events().all();
     let found = events.iter().find(|e| {
-        if e.1.len() > 0 {
+        if !e.1.is_empty() {
             let topic = e.1.get(0).unwrap();
             if let Ok(sym) = Symbol::try_from_val(env, &topic) {
                 return sym.to_string() == event_name;
@@ -83,7 +83,7 @@ fn find_event(
         false
     });
 
-    found.map(|e| (e.0.clone(), e.1.clone(), e.2.clone()))
+    found.map(|e| (e.0.clone(), e.1.clone(), e.2))
 }
 
 /// Helper to count events by name
@@ -92,7 +92,7 @@ fn count_events(env: &Env, event_name: &str) -> usize {
     events
         .iter()
         .filter(|e| {
-            if e.1.len() > 0 {
+            if !e.1.is_empty() {
                 let topic = e.1.get(0).unwrap();
                 if let Ok(sym) = Symbol::try_from_val(env, &topic) {
                     return sym.to_string() == event_name;
@@ -762,7 +762,7 @@ fn test_no_duplicate_events() {
 fn test_multisig_config_changed_event() {
     let env = create_test_env();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = create_test_address(&env);
     client.initialize(&owner);
@@ -794,7 +794,7 @@ fn test_multisig_config_changed_event() {
 fn test_multisig_config_changed_event_reports_previous_values() {
     let env = create_test_env();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = create_test_address(&env);
     client.initialize(&owner);
@@ -829,7 +829,7 @@ fn test_multisig_config_changed_event_reports_previous_values() {
 fn test_exchange_rate_updated_event() {
     let env = create_test_env();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = create_test_address(&env);
     client.initialize(&owner);
@@ -862,7 +862,7 @@ fn test_exchange_rate_updated_event() {
 fn test_exchange_rate_updated_event_by_admin() {
     let env = create_test_env();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = create_test_address(&env);
     client.initialize(&owner);
@@ -890,7 +890,7 @@ fn test_exchange_rate_updated_event_by_admin() {
 fn test_exchange_rate_updated_event_prev_rate_reported() {
     let env = create_test_env();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = create_test_address(&env);
     client.initialize(&owner);
@@ -932,6 +932,5 @@ fn test_all_event_types_covered() {
     // ✓ dispute_raised_event
     // ✓ exchange_rate_updated_event
 
-    // All existing event types are covered in this test suite
-    assert!(true);
+    // All existing event types are covered in this test suite.
 }

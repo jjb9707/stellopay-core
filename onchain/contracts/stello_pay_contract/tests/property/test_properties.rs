@@ -45,7 +45,7 @@ fn setup_contract() -> (Env, Address, Address, PayrollContractClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
 
     let owner = Address::generate(&env);

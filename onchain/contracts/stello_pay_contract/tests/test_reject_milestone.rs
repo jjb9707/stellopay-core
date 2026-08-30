@@ -43,7 +43,7 @@ fn setup() -> (
     env.mock_all_auths();
 
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
 
     let owner = Address::generate(&env);
@@ -132,7 +132,7 @@ fn test_reject_milestone_reason_propagated_to_event() {
     let milestone_rejected_events: Vec<_> = all_events
         .iter()
         .filter(|e| {
-            e.1.len() > 0
+            !e.1.is_empty()
                 && event_symbol
                     == Symbol::try_from_val(&env, &e.1.get(0).unwrap())
                         .unwrap_or(Symbol::new(&env, ""))
@@ -145,7 +145,7 @@ fn test_reject_milestone_reason_propagated_to_event() {
     );
 
     // Decode the event data to verify the reason field.
-    let event_data = &milestone_rejected_events.get(0).unwrap().2;
+    let event_data = &milestone_rejected_events.first().unwrap().2;
     let map: Map<Symbol, soroban_sdk::Val> = event_data.try_into_val(&env).unwrap();
     let reason_field: soroban_sdk::String = map
         .get(Symbol::new(&env, "reason"))

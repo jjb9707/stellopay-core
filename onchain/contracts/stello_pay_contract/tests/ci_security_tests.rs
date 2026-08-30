@@ -2,7 +2,7 @@
 
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
-    token, Address, Env, Vec,
+    token, Address, Env,
 };
 use stello_pay_contract::{PayrollContract, PayrollContractClient};
 

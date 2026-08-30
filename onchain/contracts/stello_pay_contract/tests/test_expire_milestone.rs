@@ -123,7 +123,7 @@ fn setup() -> (
     env.mock_all_auths();
 
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
 
     let owner = Address::generate(&env);
@@ -372,7 +372,7 @@ fn test_expire_milestone_out_of_range() {
 /// Non-existent agreement ID returns `AgreementNotFound`.
 #[test]
 fn test_expire_milestone_unknown_agreement() {
-    let (env, _owner, _employer, _contributor, _token, client) = setup();
+    let (_env, _owner, _employer, _contributor, _token, client) = setup();
 
     let err = client
         .try_expire_milestone(&9999u128, &1u32)
@@ -387,7 +387,7 @@ fn test_expire_milestone_paused_agreement() {
     let (agreement_id, milestone_id) =
         funded_milestone(&env, &client, &employer, &contributor, &token);
 
-    let _ = client.pause_agreement(&agreement_id);
+    client.pause_agreement(&agreement_id);
 
     let err = client
         .try_expire_milestone(&agreement_id, &milestone_id)
@@ -423,7 +423,7 @@ fn test_expire_milestone_noop_hook_does_not_break_expiry() {
 
     // Register a MinimalMilestoneImpl (uses no-op on_milestone_expired).
     #[allow(deprecated)]
-    let hook_id = env.register_contract(None, MinimalMilestoneImpl);
+    let hook_id = env.register(MinimalMilestoneImpl, ());
 
     client.set_milestone_hook_contract(&owner, &hook_id);
 
@@ -446,7 +446,7 @@ fn test_expire_milestone_hook_receives_correct_args() {
 
     // Register the recording hook.
     #[allow(deprecated)]
-    let hook_id = env.register_contract(None, RecordingHook);
+    let hook_id = env.register(RecordingHook, ());
     let hook_client = milestone_interface::MilestoneContractClient::new(&env, &hook_id);
 
     client.set_milestone_hook_contract(&owner, &hook_id);
@@ -489,9 +489,9 @@ fn test_set_milestone_hook_contract_updates_correctly() {
     let (env, owner, employer, contributor, token, client) = setup();
 
     #[allow(deprecated)]
-    let hook_a = env.register_contract(None, MinimalMilestoneImpl);
+    let hook_a = env.register(MinimalMilestoneImpl, ());
     #[allow(deprecated)]
-    let hook_b = env.register_contract(None, RecordingHook);
+    let hook_b = env.register(RecordingHook, ());
 
     // Set hook A then immediately overwrite with hook B.
     client.set_milestone_hook_contract(&owner, &hook_a);
@@ -520,7 +520,7 @@ fn test_set_milestone_hook_contract_updates_correctly() {
 /// `get_milestone_hook_contract` returns `None` when no hook has been set.
 #[test]
 fn test_get_milestone_hook_contract_none_when_unset() {
-    let (env, _owner, _employer, _contributor, _token, client) = setup();
+    let (_env, _owner, _employer, _contributor, _token, client) = setup();
     assert_eq!(client.get_milestone_hook_contract(), None);
 }
 
@@ -539,7 +539,7 @@ fn test_existing_implementor_compiles_and_registers() {
 
     // Registering the contract implicitly verifies it compiled successfully.
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, MinimalMilestoneImpl);
+    let contract_id = env.register(MinimalMilestoneImpl, ());
 
     let client = milestone_interface::MilestoneContractClient::new(&env, &contract_id);
 

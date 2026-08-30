@@ -6,5 +6,12 @@
 # functions tend to have many storage reads; raise slightly above the default.
 cognitive-complexity-threshold = 30
 
+# The published price-oracle `configure_pair` ABI has ten user-supplied
+# configuration fields. Soroban generates a wrapper with the same flat
+# argument list, so a local attribute cannot suppress this generated lint.
+# Keep the threshold narrowly above that ABI shape; new larger functions still
+# fail the workspace gate.
+too-many-arguments-threshold = 11
+
 # Set the MSRV so version-gated lints are accurate.
 msrv = "1.77.0"

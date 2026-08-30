@@ -59,7 +59,7 @@ fn addr(env: &Env) -> Address {
 }
 
 fn setup(env: &Env) -> (Address, PayrollContractClient<'static>) {
-    let id = env.register_contract(None, PayrollContract);
+    let id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &id);
     let owner = addr(env);
     client.initialize(&owner);

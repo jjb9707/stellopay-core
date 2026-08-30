@@ -91,7 +91,7 @@ fn create_env() -> Env {
 
 /// Deploys and initialises the payroll contract; returns (contract_address, client).
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = Address::generate(env);
     client.initialize(&owner);
@@ -1179,7 +1179,7 @@ fn test_payroll_claim_blocked_after_grace_period_expired() {
 fn test_payroll_claim_in_token_applies_fx_rate() {
     let env = create_env();
     // Deploy a fresh contract and capture the owner so we can call set_exchange_rate.
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = Address::generate(&env);
     client.initialize(&owner);

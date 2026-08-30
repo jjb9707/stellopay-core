@@ -28,7 +28,7 @@ fn create_test_env() -> (
     let env = Env::default();
     env.mock_all_auths();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let employer = Address::generate(&env);
     let contributor = Address::generate(&env);
@@ -338,7 +338,7 @@ fn test_fund_contributor_cannot_fund_fails() {
 /// Funding a non-existent agreement ID must fail.
 #[test]
 fn test_fund_nonexistent_agreement_returns_agreement_not_found() {
-    let (env, employer, _contributor, _token, client) = create_test_env();
+    let (_env, employer, _contributor, _token, client) = create_test_env();
     let result = client.try_fund_milestone_agreement(&999u128, &employer, &500i128);
     assert_eq!(result, Err(Ok(PayrollError::AgreementNotFound.into())));
 }
@@ -421,7 +421,7 @@ fn test_add_milestone_zero_amount_fails() {
     let (env, employer, contributor, token, client) = create_test_env();
     let agreement_id = setup_milestone_agreement(&env, &client, &employer, &contributor, &token);
     let result = client.try_add_milestone(&agreement_id, &0);
-    assert_eq!(result, Err(Ok(PayrollError::MilestoneAmountInvalid.into())));
+    assert_eq!(result, Err(Ok(PayrollError::MilestoneAmountInvalid)));
 }
 
 /// Adding a milestone when agreement is not in Created status must fail.
@@ -818,6 +818,9 @@ fn test_batch_claim_mixed_reports_error_codes() {
 
 /// Converts a `MilestoneView` (from the interface client) to a `Milestone`
 /// for field-by-field comparison with the direct contract result.
+// This conversion helper is retained for the large integration fixture set;
+// some feature-selected test targets do not call it directly.
+#[allow(dead_code)]
 fn view_to_milestone(v: &MilestoneView) -> Milestone {
     Milestone {
         id: v.id,
@@ -862,7 +865,7 @@ fn test_milestone_interface_conformance() {
     let env = Env::default();
     env.mock_all_auths();
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let direct = PayrollContractClient::new(&env, &contract_id);
     let via = MilestoneContractClient::new(&env, &contract_id);
 
@@ -1215,7 +1218,7 @@ fn test_trait_method_surface_compiles() {
     env.mock_all_auths();
 
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let via = MilestoneContractClient::new(&env, &contract_id);
 
     // get_milestone — (u128, u32) -> Option<MilestoneView>
@@ -1227,7 +1230,7 @@ fn test_trait_method_surface_compiles() {
     // on_milestone_expired — (u128, u32) -> ()
     // Verified via ProbeContract (defined at module scope above).
     #[allow(deprecated)]
-    let probe_id = env.register_contract(None, ProbeContract);
+    let probe_id = env.register(ProbeContract, ());
     let probe_client = MilestoneContractClient::new(&env, &probe_id);
 
     // Prove all three method signatures are present and callable.
@@ -1250,11 +1253,11 @@ fn test_default_hook_is_noop_and_additive() {
     let env = Env::default();
     env.mock_all_auths();
 
-    /// Minimal implementor — does not override `on_milestone_expired`.
-    /// If the trait required it without a default this would fail to compile.
-    /// (Defined at module scope as `AdditiveImpl`.)
+    // Minimal implementor — does not override `on_milestone_expired`.
+    // If the trait required it without a default this would fail to compile.
+    // (Defined at module scope as `AdditiveImpl`.)
     #[allow(deprecated)]
-    let id = env.register_contract(None, AdditiveImpl);
+    let id = env.register(AdditiveImpl, ());
     let client = MilestoneContractClient::new(&env, &id);
 
     // Hook call must complete without panic or state mutation.
@@ -1334,7 +1337,7 @@ fn test_v1_method_parity_across_lifecycle() {
     env.mock_all_auths();
 
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let direct = PayrollContractClient::new(&env, &contract_id);
     let via = MilestoneContractClient::new(&env, &contract_id);
 
@@ -1425,7 +1428,7 @@ fn test_milestone_view_field_parity_with_internal_milestone() {
     env.mock_all_auths();
 
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let direct = PayrollContractClient::new(&env, &contract_id);
     let via = MilestoneContractClient::new(&env, &contract_id);
 

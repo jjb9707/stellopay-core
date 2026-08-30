@@ -13,7 +13,7 @@ fn create_env() -> Env {
 }
 
 fn register_contract(env: &Env) -> (Address, RateLimiterClient<'static>) {
-    let id = env.register_contract(None, RateLimiter);
+    let id = env.register(RateLimiter, ());
     let client = RateLimiterClient::new(env, &id);
     (id, client)
 }

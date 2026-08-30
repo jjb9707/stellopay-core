@@ -3,10 +3,10 @@
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
     token::StellarAssetClient,
-    Address, Env, Vec,
+    Address, Env,
 };
 use stello_pay_contract::{
-    storage::{DataKey, ExchangeRateInfo, PayrollError},
+    storage::{DataKey, PayrollError},
     PayrollContract, PayrollContractClient,
 };
 
@@ -22,7 +22,7 @@ fn create_test_env() -> (
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
 
     let owner = Address::generate(&env);
