@@ -231,7 +231,7 @@ fn bench_env() -> Env {
 }
 
 fn deploy(env: &Env) -> (Address, PayrollContractClient<'_>) {
-    let id = env.register_contract(None, PayrollContract);
+    let id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &id);
     let owner = Address::generate(env);
     client.initialize(&owner);
@@ -282,7 +282,7 @@ fn setup_payroll_for_periods(
 /// Prepares a milestone agreement with `n` approved milestones and funded escrow.
 fn setup_funded_milestones(
     env: &Env,
-    contract_id: &Address,
+    _contract_id: &Address,
     client: &PayrollContractClient,
     n: usize,
 ) -> (u128, soroban_sdk::Vec<u32>) {

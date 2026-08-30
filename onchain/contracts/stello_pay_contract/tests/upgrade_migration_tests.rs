@@ -18,7 +18,7 @@ fn setup(env: &Env) -> (PayrollContractClient<'_>, Address) {
 }
 
 fn deploy_rbac(env: &Env) -> (RbacContractClient<'_>, Address) {
-    let id = env.register_contract(None, RbacContract);
+    let id = env.register(RbacContract, ());
     let client = RbacContractClient::new(env, &id);
     let owner = Address::generate(env);
     client.initialize(&owner);

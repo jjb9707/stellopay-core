@@ -71,13 +71,14 @@ fn has_exact_role(roles: &Vec<Role>, role: &Role) -> bool {
 /// - Arbiter: implies Arbiter only.
 pub fn role_implies(granted: &Role, required: &Role) -> bool {
     use Role::*;
-    match (granted, required) {
-        (Admin, _) => true,
-        (Employer, Employer) | (Employer, Employee) => true,
-        (Employee, Employee) => true,
-        (Arbiter, Arbiter) => true,
-        _ => false,
-    }
+    matches!(
+        (granted, required),
+        (Admin, _)
+            | (Employer, Employer)
+            | (Employer, Employee)
+            | (Employee, Employee)
+            | (Arbiter, Arbiter)
+    )
 }
 
 /// @dev Returns true if `addr` holds any role that implies `required`.

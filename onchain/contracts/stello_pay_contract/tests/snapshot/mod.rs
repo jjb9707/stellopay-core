@@ -60,7 +60,7 @@ fn create_env() -> Env {
 
 fn register_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     (contract_id, client)
 }
@@ -297,7 +297,7 @@ fn tick(env: &Env, seconds: u64) {
 /// Deploy contract, initialize with a fixed owner, return (contract_id, client, owner).
 fn setup(env: &Env) -> (Address, PayrollContractClient<'static>, Address) {
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = Address::generate(env);
     client.initialize(&owner);

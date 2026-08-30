@@ -22,7 +22,7 @@ fn create_env() -> Env {
 }
 
 fn setup_payroll(env: &Env) -> (Address, Address, PayrollContractClient<'static>) {
-    let payroll_id = env.register_contract(None, PayrollContract);
+    let payroll_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &payroll_id);
     let owner = Address::generate(env);
     client.initialize(&owner);
@@ -33,7 +33,7 @@ fn setup_oracle(
     env: &Env,
     payroll_id: &Address,
 ) -> (Address, PriceOracleContractClient<'static>, Address) {
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(env, &oracle_id);
     let owner = Address::generate(env);
     client.initialize(&owner, payroll_id);
@@ -127,7 +127,7 @@ fn test_initialize_sets_owner() {
 fn test_initialize_twice_returns_error() {
     let env = create_env();
     let (payroll_id, _, _) = setup_payroll(&env);
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let owner = Address::generate(&env);
 
@@ -767,7 +767,7 @@ fn test_multi_source_latest_wins() {
     oracle_client.push_price(&backup, &base, &quote, &3_000_000i128, &2_100u64);
 
     // Older primary update ignored.
-    let _ = oracle_client.push_price(&source, &base, &quote, &1_500_000i128, &1_900u64);
+    oracle_client.push_price(&source, &base, &quote, &1_500_000i128, &1_900u64);
 
     let state = oracle_client.get_pair_state(&base, &quote);
     assert_eq!(state.rate, 3_000_000);
@@ -901,7 +901,7 @@ fn test_non_owner_cannot_cancel_transfer() {
 #[test]
 fn test_push_price_before_init_fails() {
     let env = create_env();
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -914,7 +914,7 @@ fn test_push_price_before_init_fails() {
 #[test]
 fn test_add_source_before_init_fails() {
     let env = create_env();
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -926,7 +926,7 @@ fn test_add_source_before_init_fails() {
 #[test]
 fn test_configure_pair_before_init_fails() {
     let env = create_env();
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -950,7 +950,7 @@ fn test_configure_pair_before_init_fails() {
 #[test]
 fn test_disable_pair_before_init_fails() {
     let env = create_env();
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -963,7 +963,7 @@ fn test_disable_pair_before_init_fails() {
 #[test]
 fn test_propose_ownership_before_init_fails() {
     let env = create_env();
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let a = Address::generate(&env);
     let b = Address::generate(&env);
@@ -975,7 +975,7 @@ fn test_propose_ownership_before_init_fails() {
 #[test]
 fn test_accept_ownership_before_init_fails() {
     let env = create_env();
-    let oracle_id = env.register_contract(None, PriceOracleContract);
+    let oracle_id = env.register(PriceOracleContract, ());
     let client = PriceOracleContractClient::new(&env, &oracle_id);
     let a = Address::generate(&env);
 

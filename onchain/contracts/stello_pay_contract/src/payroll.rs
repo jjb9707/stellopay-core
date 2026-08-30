@@ -30,16 +30,25 @@ use soroban_sdk::{
 };
 
 /// Minimal interface for cross-contract calls into the deployed multisig contract.
+// The macro consumes this trait to generate the client used by integrations;
+// the trait itself has no local Rust call sites.
+#[allow(dead_code)]
 #[contractclient(name = "MultisigClient")]
 trait MultisigInterface {
     fn get_operation(env: Env, operation_id: u128) -> Option<Operation>;
 }
 
+// The macro consumes this trait to generate the client used by integrations;
+// the trait itself has no local Rust call sites.
+#[allow(dead_code)]
 #[contractclient(name = "RateLimiterClient")]
 trait RateLimiterInterface {
     fn check_and_consume(env: Env, subject: Address) -> u32;
 }
 
+// The macro consumes this trait to generate the client used by integrations;
+// the trait itself has no local Rust call sites.
+#[allow(dead_code)]
 #[contractclient(name = "SalaryAdjustmentClient")]
 trait SalaryAdjustmentInterface {
     fn get_employee_salary(env: Env, employee: Address) -> Option<i128>;
@@ -282,7 +291,7 @@ pub fn create_milestone_agreement(
         &AgreementStatus::Created,
     );
 
-    let milestone_count: u32 = milestones.len() as u32;
+    let milestone_count: u32 = milestones.len();
     let mut total: i128 = 0;
     for (i, amount) in milestones.iter().enumerate() {
         if amount <= 0 {
@@ -411,7 +420,7 @@ pub fn fund_milestone_agreement(env: &Env, agreement_id: u128, from: Address, am
         .persistent()
         .get(&MilestoneKey::Token(agreement_id))
         .unwrap_or_else(|| panic_with_error!(env, PayrollError::AgreementNotFound));
-    TokenClient::new(env, &token_address).transfer(&from, &env.current_contract_address(), &amount);
+    TokenClient::new(env, &token_address).transfer(&from, env.current_contract_address(), &amount);
 
     emit_milestone_funded(
         env,
@@ -3235,9 +3244,7 @@ fn batch_claim_payroll_inner(
 ) -> Result<BatchPayrollResult, PayrollError> {
     caller.require_auth();
 
-    if let Err(e) = enforce_rate_limit(env, caller) {
-        return Err(e);
-    }
+    enforce_rate_limit(env, caller)?;
 
     if employee_indices.is_empty() {
         return Err(PayrollError::InvalidData);
@@ -4337,7 +4344,7 @@ pub fn pause_employer_agreements(env: &Env, employer: Address) -> Result<u32, Pa
                 .storage()
                 .persistent()
                 .get(&MilestoneKey::Employer(agreement_id));
-            if stored_employer.map_or(false, |e| e == employer) {
+            if stored_employer.is_some_and(|e| e == employer) {
                 let status: Option<AgreementStatus> = env
                     .storage()
                     .persistent()
@@ -4414,7 +4421,7 @@ pub fn unpause_employer_agreements(env: &Env, employer: Address) -> Result<u32, 
                 .storage()
                 .persistent()
                 .get(&MilestoneKey::Employer(agreement_id));
-            if stored_employer.map_or(false, |e| e == employer) {
+            if stored_employer.is_some_and(|e| e == employer) {
                 let status: Option<AgreementStatus> = env
                     .storage()
                     .persistent()

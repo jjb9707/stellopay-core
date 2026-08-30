@@ -82,7 +82,7 @@ fn mint(env: &Env, token: &Address, to: &Address, amount: i128) {
 
 /// Registers the contract, initializes it, and returns (contract_id, client).
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = create_address(env);
     client.initialize(&owner);
@@ -452,7 +452,7 @@ fn test_payroll_claim_panics_without_onchain_tokens() {
 
     // This panics inside the token contract because the contract address has
     // insufficient on-chain token balance despite the DataKey saying otherwise.
-    let _ = client.claim_payroll(&employee, &agreement_id, &0u32);
+    client.claim_payroll(&employee, &agreement_id, &0u32);
 }
 
 /// Time-based escrow claim also panics when the on-chain token balance is zero
@@ -484,7 +484,7 @@ fn test_time_based_claim_panics_without_onchain_tokens() {
     advance_time(&env, ONE_DAY + 1);
 
     // Panics on the token transfer.
-    let _ = client.claim_time_based(&agreement_id);
+    client.claim_time_based(&agreement_id);
 }
 
 // ============================================================================
@@ -1035,7 +1035,7 @@ fn test_claimed_periods_unchanged_after_failed_claim() {
     advance_time(&env, ONE_DAY + 1);
 
     // Succeed on first claim.
-    let _ = client.claim_payroll(&employee, &agreement_id, &0u32);
+    client.claim_payroll(&employee, &agreement_id, &0u32);
     assert_eq!(client.get_employee_claimed_periods(&agreement_id, &0u32), 1);
 
     // Advance another day — escrow is now empty.

@@ -403,7 +403,7 @@ fn test_grace_period_extended_event_emitted() {
 
     let events = env.events().all();
     let found = events.iter().any(|e| {
-        if e.1.len() > 0 {
+        if !e.1.is_empty() {
             let topic = e.1.get(0).unwrap();
             if let Ok(sym) = Symbol::try_from_val(&env, &topic) {
                 return sym.to_string() == "grace_period_extended_event";

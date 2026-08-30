@@ -39,7 +39,7 @@ fn mint(env: &Env, token: &Address, to: &Address, amount: i128) {
 
 fn setup_contract(env: &Env) -> (Address, PayrollContractClient<'static>) {
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(env, &contract_id);
     let owner = create_address(env);
     client.initialize(&owner);
@@ -385,6 +385,7 @@ fn test_claim_milestone_state_committed_before_transfer() {
 ///   1. Expired flag stored.
 ///   2. Event emitted.
 ///   3. Hook called.
+///
 /// Any hook that tries to approve + claim will see the already-expired state
 /// and the claim will fail (expired milestones cannot be approved).
 #[test]

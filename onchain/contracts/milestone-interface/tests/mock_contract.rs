@@ -217,7 +217,7 @@ mod tests {
         let env = Env::default();
         env.mock_all_auths();
         #[allow(deprecated)]
-        let contract_id = env.register_contract(None, MockMilestoneContract);
+        let contract_id = env.register(MockMilestoneContract, ());
         let employer = Address::generate(&env);
         (env, employer, contract_id)
     }
@@ -306,7 +306,7 @@ mod tests {
         env.mock_all_auths();
 
         #[allow(deprecated)]
-        let contract_id = env.register_contract(None, MockMilestoneContract);
+        let contract_id = env.register(MockMilestoneContract, ());
         let client = MockMilestoneContractClient::new(&env, &contract_id);
 
         let employer = Address::generate(&env);
@@ -361,7 +361,7 @@ mod tests {
         env.mock_all_auths();
 
         #[allow(deprecated)]
-        let contract_id = env.register_contract(None, MockMilestoneContract);
+        let contract_id = env.register(MockMilestoneContract, ());
         let client = MockMilestoneContractClient::new(&env, &contract_id);
 
         let employer = Address::generate(&env);

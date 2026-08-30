@@ -2,7 +2,7 @@ use criterion::{criterion_group, criterion_main, BatchSize, Criterion, Throughpu
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
     token::StellarAssetClient,
-    Address, Env, Vec,
+    Address, Env,
 };
 use stello_pay_contract::{
     storage::{AgreementStatus, DataKey},
@@ -20,7 +20,7 @@ fn setup_env() -> (
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
 
     let owner = Address::generate(&env);
@@ -47,7 +47,7 @@ fn bench_create_payroll_agreement(c: &mut Criterion) {
                     .address();
                 (env, employer, client, token)
             },
-            |(env, employer, client, token)| {
+            |(_env, employer, client, token)| {
                 let grace: u64 = 7 * 24 * 60 * 60;
                 let _id = client.create_payroll_agreement(&employer, &token, &grace);
             },

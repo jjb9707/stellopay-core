@@ -2,12 +2,10 @@
 
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
-    Address, Env, Vec,
+    Address, Env,
 };
 use stello_pay_contract::{
-    storage::{
-        Agreement, AgreementMode, AgreementStatus, DataKey, Milestone, PayrollError, StorageKey,
-    },
+    storage::{Agreement, AgreementStatus, DataKey, PayrollError, StorageKey},
     PayrollContract, PayrollContractClient,
 };
 
@@ -108,7 +106,7 @@ fn test_invariant_milestone_balance_insufficient() {
 #[test]
 fn test_invariant_milestone_balance_sufficient() {
     let env = create_test_env();
-    let (contract_id, client) = setup_contract(&env);
+    let (_contract_id, client) = setup_contract(&env);
     let token_admin = Address::generate(&env);
     let (token_id, _token_client, token_admin_client) = setup_token(&env, &token_admin);
 

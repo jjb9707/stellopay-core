@@ -6,7 +6,7 @@
 #![allow(deprecated)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stello_pay_contract::{storage::PayrollError, PayrollContract, PayrollContractClient};
+use stello_pay_contract::{PayrollContract, PayrollContractClient};
 
 fn create_env() -> (
     Env,
@@ -17,7 +17,7 @@ fn create_env() -> (
 ) {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let owner = Address::generate(&env);
     client.initialize(&owner);

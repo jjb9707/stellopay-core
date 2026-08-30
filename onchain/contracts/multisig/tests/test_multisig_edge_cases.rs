@@ -18,13 +18,15 @@ fn create_env() -> Env {
 
 fn register_contract(env: &Env) -> (Address, MultisigContractClient<'static>) {
     #[allow(deprecated)]
-    let id = env.register_contract(None, MultisigContract);
+    let id = env.register(MultisigContract, ());
     let client = MultisigContractClient::new(env, &id);
     (id, client)
 }
 
 fn create_token_contract<'a>(env: &Env, admin: &Address) -> TokenClient<'a> {
-    let token_addr = env.register_stellar_asset_contract(admin.clone());
+    let token_addr = env
+        .register_stellar_asset_contract_v2(admin.clone())
+        .address();
     TokenClient::new(env, &token_addr)
 }
 

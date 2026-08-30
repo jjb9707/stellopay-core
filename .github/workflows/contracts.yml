@@ -39,6 +39,10 @@ jobs:
         working-directory: onchain
         run: cargo fmt --all -- --check
 
+      - name: Run Clippy (all workspace targets)
+        working-directory: onchain
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
       - name: Reject untyped payroll traps
         run: bash scripts/check-contract-no-traps.sh
 

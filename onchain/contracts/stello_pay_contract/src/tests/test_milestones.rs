@@ -7,7 +7,7 @@ fn test_approve_milestone_success() {
     let env = Env::default();
     let approver = Address::generate(&env);
     let employee = Address::generate(&env);
-    let client = StelloPayContractClient::new(&env, &env.register_contract(None, StelloPayContract));
+    let client = StelloPayContractClient::new(&env, &env.register(StelloPayContract, ()));
 
     // Setup: Create agreement and milestone...
     let milestone_id = setup_agreement_with_milestone(&env, &client, &approver, &employee);
@@ -26,7 +26,7 @@ fn test_fail_unrelated_address_approval() {
     let env = Env::default();
     let approver = Address::generate(&env);
     let attacker = Address::generate(&env);
-    let client = StelloPayContractClient::new(&env, &env.register_contract(None, StelloPayContract));
+    let client = StelloPayContractClient::new(&env, &env.register(StelloPayContract, ()));
 
     let milestone_id = setup_agreement_with_milestone(&env, &client, &approver, &Address::generate(&env));
 
@@ -53,7 +53,7 @@ fn test_fail_employee_self_approval() {
     let env = Env::default();
     let approver = Address::generate(&env);
     let employee = Address::generate(&env);
-    let client = StelloPayContractClient::new(&env, &env.register_contract(None, StelloPayContract));
+    let client = StelloPayContractClient::new(&env, &env.register(StelloPayContract, ()));
 
     let milestone_id = setup_agreement_with_milestone(&env, &client, &approver, &employee);
 

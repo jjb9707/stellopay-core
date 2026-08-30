@@ -83,7 +83,7 @@ fn full_setup(
 
     env.as_contract(&client.address, || {
         use stello_pay_contract::storage::DataKey;
-        DataKey::set_agreement_escrow_balance(&env, agreement_id, &token_addr, 10000);
+        DataKey::set_agreement_escrow_balance(env, agreement_id, &token_addr, 10000);
     });
 
     (

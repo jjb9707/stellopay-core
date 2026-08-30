@@ -23,7 +23,7 @@ fn setup() -> (
     env.mock_all_auths();
 
     #[allow(deprecated)]
-    let contract_id = env.register_contract(None, PayrollContract);
+    let contract_id = env.register(PayrollContract, ());
     let client = PayrollContractClient::new(&env, &contract_id);
     let employer = Address::generate(&env);
     let contributor = Address::generate(&env);

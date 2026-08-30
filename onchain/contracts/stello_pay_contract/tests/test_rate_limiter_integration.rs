@@ -20,7 +20,9 @@ fn addr(env: &Env) -> Address {
 
 fn setup_token(env: &Env) -> (Address, Address) {
     let admin = addr(env);
-    let token = env.register_stellar_asset_contract(admin.clone());
+    let token = env
+        .register_stellar_asset_contract_v2(admin.clone())
+        .address();
     (token, admin)
 }
 
@@ -33,12 +35,12 @@ fn setup(
     Address,
     Address,
 ) {
-    let payroll_id = env.register_contract(None, PayrollContract);
+    let payroll_id = env.register(PayrollContract, ());
     let payroll_client = PayrollContractClient::new(env, &payroll_id);
     let owner = addr(env);
     payroll_client.initialize(&owner);
 
-    let rl_id = env.register_contract(None, RateLimiter);
+    let rl_id = env.register(RateLimiter, ());
     let rl_client = RateLimiterClient::new(env, &rl_id);
 
     // Initialize rate limiter: 2 token burst, 0 refill
@@ -53,7 +55,7 @@ fn setup(
 #[test]
 fn test_rate_limited_claim() {
     let env = create_test_env();
-    let (payroll_id, client, rl_client, owner, _) = setup(&env);
+    let (payroll_id, client, _rl_client, _owner, _) = setup(&env);
     let (token, _token_admin) = setup_token(&env);
 
     let employer = addr(&env);
@@ -105,24 +107,21 @@ fn test_rate_limited_claim() {
     // month if not escrow)
 
     // Wait, payroll agreement periods logic: 30 days is default period if not escrow
-    env.ledger()
-        .with_mut(|li| li.timestamp = li.timestamp + 30 * 24 * 3600);
+    env.ledger().with_mut(|li| li.timestamp += 30 * 24 * 3600);
 
     // First claim should succeed (consumes 1 rate limit token)
     let res1 = client.try_claim_payroll(&employee, &agreement_id, &0);
     assert_eq!(res1, Ok(Ok(())));
 
     // Advance time again to accrue more payroll
-    env.ledger()
-        .with_mut(|li| li.timestamp = li.timestamp + 30 * 24 * 3600);
+    env.ledger().with_mut(|li| li.timestamp += 30 * 24 * 3600);
 
     // Second claim should succeed (consumes 2nd rate limit token)
     let res2 = client.try_claim_payroll(&employee, &agreement_id, &0);
     assert_eq!(res2, Ok(Ok(())));
 
     // Advance time again to accrue more payroll
-    env.ledger()
-        .with_mut(|li| li.timestamp = li.timestamp + 30 * 24 * 3600);
+    env.ledger().with_mut(|li| li.timestamp += 30 * 24 * 3600);
 
     // Third claim should fail (0 rate limit tokens left)
     let res3 = client.try_claim_payroll(&employee, &agreement_id, &0);
@@ -203,27 +202,20 @@ fn test_batch_claim_rate_limited() {
     TokenClient::new(&env, &token).transfer(&employer, &client.address, &3000000);
 
     // Fast forward
-    env.ledger()
-        .with_mut(|li| li.timestamp = li.timestamp + 30 * 24 * 3600);
+    env.ledger().with_mut(|li| li.timestamp += 30 * 24 * 3600);
 
     let mut indices = Vec::new(&env);
     indices.push_back(0);
 
     // Claim 1
-    assert_eq!(
-        client
-            .try_batch_claim_payroll(&employee1, &agreement_id, &indices)
-            .is_ok(),
-        true
-    );
+    assert!(client
+        .try_batch_claim_payroll(&employee1, &agreement_id, &indices)
+        .is_ok());
 
     // Claim 2
-    assert_eq!(
-        client
-            .try_batch_claim_payroll(&employee1, &agreement_id, &indices)
-            .is_ok(),
-        true
-    );
+    assert!(client
+        .try_batch_claim_payroll(&employee1, &agreement_id, &indices)
+        .is_ok());
 
     // Claim 3 -> limited
     let res3 = client.try_batch_claim_payroll(&employee1, &agreement_id, &indices);
