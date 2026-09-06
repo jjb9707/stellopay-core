@@ -58,6 +58,22 @@ fn fund_agreement_escrow(
     });
 }
 
+/// Funds the escrow-balance storage for a time-based (escrow) agreement so that
+/// `claim_time_based` can pass its `InsufficientEscrowBalance` guard. Mirrors
+/// `fund_agreement_escrow` but targets the time-based claim path, which has its
+/// own state transition distinct from `claim_payroll`.
+fn fund_escrow_agreement(
+    env: &Env,
+    contract_id: &Address,
+    agreement_id: u128,
+    token: &Address,
+    amount: i128,
+) {
+    env.as_contract(contract_id, || {
+        DataKey::set_agreement_escrow_balance(env, agreement_id, token, amount);
+    });
+}
+
 fn advance_time(env: &Env, seconds: u64) {
     env.ledger().with_mut(|li| {
         li.timestamp += seconds;
@@ -217,9 +233,11 @@ fn test_guard_released_allows_subsequent_claim() {
 
 /// Verifies that after claim_time_based, claimed periods are updated so
 /// another claim without time advance does not double-pay.
-/// (Requires full escrow funding setup; see test_grace_period for pattern.)
+///
+/// This previously carried `#[ignore]` because the time-based claim path needs its
+/// own escrow-balance storage setup (distinct from `claim_payroll`). We now fund
+/// that storage via `fund_escrow_agreement`, mirroring `fund_agreement_escrow`.
 #[test]
-#[ignore = "requires escrow balance storage setup - covered by test_claim_payroll_state_updated_prevents_double_claim"]
 fn test_claim_time_based_state_updated_prevents_double_claim() {
     let env = create_env();
     let (contract_id, client) = setup_contract(&env);
@@ -239,6 +257,10 @@ fn test_claim_time_based_state_updated_prevents_double_claim() {
         &num_periods,
     );
     client.activate_agreement(&agreement_id);
+
+    // Fund the escrow-balance storage so claim_time_based passes its
+    // InsufficientEscrowBalance guard (this is the time-based path's own setup).
+    fund_escrow_agreement(&env, &contract_id, agreement_id, &token, 4000);
 
     let token_client = TokenClient::new(&env, &token);
     mint(&env, &token, &employer, 4000);
