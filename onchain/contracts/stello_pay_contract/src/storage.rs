@@ -749,7 +749,7 @@ impl DataKey {
         env.storage()
             .persistent()
             .set(&StorageKey::ExchangeRateMaxAgeSeconds, &seconds);
-            extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxAgeSeconds);
+        extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxAgeSeconds);
     }
 
     /// Get optional configured max single-update deviation in basis points.
@@ -764,7 +764,7 @@ impl DataKey {
         env.storage()
             .persistent()
             .set(&StorageKey::ExchangeRateMaxDeviationBps, &bps);
-            extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxDeviationBps);
+        extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxDeviationBps);
     }
 
     /// Get optional absolute upper-bound sanity limit for FX rates.
@@ -779,7 +779,7 @@ impl DataKey {
         env.storage()
             .persistent()
             .set(&StorageKey::ExchangeRateMaxRateSanityBound, &max_rate);
-            extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxRateSanityBound);
+        extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxRateSanityBound);
     }
 
     /// Marks an agreement's grace period as finalized.

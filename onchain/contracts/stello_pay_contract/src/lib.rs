@@ -148,7 +148,7 @@ impl PayrollContract {
         env.storage()
             .persistent()
             .set(&StorageKey::RbacContract, &rbac_contract);
-            crate::storage::extend_persistent_ttl(&env, &StorageKey::RbacContract);
+        crate::storage::extend_persistent_ttl(&env, &StorageKey::RbacContract);
     }
 
     /// Sets the linked Rate Limiter contract address used to throttle claims.
@@ -171,7 +171,7 @@ impl PayrollContract {
         env.storage()
             .persistent()
             .set(&StorageKey::RateLimiterContract, &rate_limiter);
-            crate::storage::extend_persistent_ttl(&env, &StorageKey::RateLimiterContract);
+        crate::storage::extend_persistent_ttl(&env, &StorageKey::RateLimiterContract);
     }
 
     /// Gets the linked Rate Limiter contract address, if any.
@@ -201,7 +201,7 @@ impl PayrollContract {
         env.storage()
             .persistent()
             .set(&StorageKey::SalaryAdjustmentContract, &salary_adjustment);
-            crate::storage::extend_persistent_ttl(&env, &StorageKey::SalaryAdjustmentContract);
+        crate::storage::extend_persistent_ttl(&env, &StorageKey::SalaryAdjustmentContract);
     }
 
     /// Gets the linked Salary Adjustment contract address, if any.
@@ -232,7 +232,7 @@ impl PayrollContract {
         env.storage()
             .persistent()
             .set(&StorageKey::MilestoneHookContract, &hook_contract);
-            crate::storage::extend_persistent_ttl(&env, &StorageKey::MilestoneHookContract);
+        crate::storage::extend_persistent_ttl(&env, &StorageKey::MilestoneHookContract);
     }
 
     /// Gets the configured `on_milestone_expired` hook contract address, if any.
@@ -302,7 +302,7 @@ impl PayrollContract {
             env.storage()
                 .persistent()
                 .set(&StorageKey::ContractVersion, &1u32);
-                crate::storage::extend_persistent_ttl(&env, &StorageKey::ContractVersion);
+            crate::storage::extend_persistent_ttl(&env, &StorageKey::ContractVersion);
             emit_contract_migrated(
                 &env,
                 ContractMigratedEvent {
