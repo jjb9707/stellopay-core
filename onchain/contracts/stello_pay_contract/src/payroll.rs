@@ -128,13 +128,16 @@ pub fn set_multisig_config(
     env.storage()
         .persistent()
         .set(&StorageKey::MultisigContract, &multisig_contract);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::MultisigContract);
     env.storage()
         .persistent()
         .set(&StorageKey::LargePaymentThreshold, &large_payment_threshold);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::LargePaymentThreshold);
     env.storage().persistent().set(
         &StorageKey::DisputeResolutionThreshold,
         &dispute_resolution_threshold,
     );
+    crate::storage::extend_persistent_ttl(env, &StorageKey::DisputeResolutionThreshold);
 
     // Emit a structured event so off-chain monitors observe approval-requirement
     // changes mid-lifecycle. Only public configuration is exposed.
@@ -273,23 +276,29 @@ pub fn create_milestone_agreement(
     env.storage()
         .persistent()
         .set(&MilestoneKey::AgreementCounter, &counter);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::AgreementCounter);
     env.storage()
         .persistent()
         .set(&MilestoneKey::Employer(agreement_id), &employer);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Employer(agreement_id));
     env.storage()
         .persistent()
         .set(&MilestoneKey::Contributor(agreement_id), &contributor);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Contributor(agreement_id));
     env.storage()
         .persistent()
         .set(&MilestoneKey::Token(agreement_id), &token);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Token(agreement_id));
     env.storage().persistent().set(
         &MilestoneKey::PaymentType(agreement_id),
         &PaymentType::MilestoneBased,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::PaymentType(agreement_id));
     env.storage().persistent().set(
         &MilestoneKey::Status(agreement_id),
         &AgreementStatus::Created,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Status(agreement_id));
 
     let milestone_count: u32 = milestones.len();
     let mut total: i128 = 0;
@@ -302,14 +311,17 @@ pub fn create_milestone_agreement(
             &MilestoneKey::MilestoneAmount(agreement_id, milestone_id),
             &amount,
         );
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneAmount(agreement_id, milestone_id));
         env.storage().persistent().set(
             &MilestoneKey::MilestoneApproved(agreement_id, milestone_id),
             &false,
         );
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneApproved(agreement_id, milestone_id));
         env.storage().persistent().set(
             &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id),
             &false,
         );
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id));
         total += amount;
 
         MilestoneAdded {
@@ -324,9 +336,11 @@ pub fn create_milestone_agreement(
         &MilestoneKey::MilestoneCount(agreement_id),
         &milestone_count,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneCount(agreement_id));
     env.storage()
         .persistent()
         .set(&MilestoneKey::TotalAmount(agreement_id), &total);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::TotalAmount(agreement_id));
 
     add_to_employer_agreements(&env, &employer, agreement_id);
 
@@ -414,6 +428,7 @@ pub fn fund_milestone_agreement(env: &Env, agreement_id: u128, from: Address, am
         &MilestoneKey::MilestoneEscrowBalance(agreement_id),
         &new_balance,
     );
+    crate::storage::extend_persistent_ttl(env, &MilestoneKey::MilestoneEscrowBalance(agreement_id));
 
     let token_address: Address = env
         .storage()
@@ -477,17 +492,21 @@ pub fn add_milestone(env: Env, agreement_id: u128, amount: i128) -> Result<(), P
         &MilestoneKey::MilestoneAmount(agreement_id, milestone_id),
         &amount,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneAmount(agreement_id, milestone_id));
     env.storage().persistent().set(
         &MilestoneKey::MilestoneApproved(agreement_id, milestone_id),
         &false,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneApproved(agreement_id, milestone_id));
     env.storage().persistent().set(
         &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id),
         &false,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id));
     env.storage()
         .persistent()
         .set(&MilestoneKey::MilestoneCount(agreement_id), &milestone_id);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneCount(agreement_id));
 
     let total: i128 = env
         .storage()
@@ -498,6 +517,7 @@ pub fn add_milestone(env: Env, agreement_id: u128, amount: i128) -> Result<(), P
     env.storage()
         .persistent()
         .set(&MilestoneKey::TotalAmount(agreement_id), &new_total);
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::TotalAmount(agreement_id));
 
     // Post-invariant: total amount should equal sum of milestones
     #[cfg(debug_assertions)]
@@ -661,6 +681,7 @@ pub fn approve_milestone(
         &MilestoneKey::MilestoneApproved(agreement_id, milestone_id),
         &true,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneApproved(agreement_id, milestone_id));
 
     // Invariant: accounted escrow balance must cover all unclaimed milestones
     // (including the one just approved). Uses the accounted balance rather than
@@ -803,6 +824,7 @@ pub fn reject_milestone(
         &MilestoneKey::MilestoneRejected(agreement_id, milestone_id),
         &true,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneRejected(agreement_id, milestone_id));
 
     // Emit the structured rejection event so off-chain indexers can track it.
     emit_milestone_rejected(
@@ -949,6 +971,7 @@ pub fn expire_milestone(
         &MilestoneKey::MilestoneExpired(agreement_id, milestone_id),
         &true,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneExpired(agreement_id, milestone_id));
 
     // Emit the structured expiry event so off-chain indexers can track it.
     emit_milestone_expired(
@@ -1076,6 +1099,7 @@ pub fn claim_milestone(
         &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id),
         &true,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id));
 
     // Decrement the accounted escrow balance so subsequent invariant checks
     // reflect the reduced available balance.
@@ -1088,6 +1112,7 @@ pub fn claim_milestone(
         &MilestoneKey::MilestoneEscrowBalance(agreement_id),
         &escrow_balance.saturating_sub(amount),
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::MilestoneEscrowBalance(agreement_id));
 
     TokenClient::new(&env, &token_address).transfer(
         &env.current_contract_address(),
@@ -1109,6 +1134,7 @@ pub fn claim_milestone(
             &MilestoneKey::Status(agreement_id),
             &AgreementStatus::Completed,
         );
+        crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Status(agreement_id));
     }
 
     Ok(())
@@ -1280,6 +1306,7 @@ pub fn batch_claim_milestones(
             &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id),
             &true,
         );
+        crate::storage::extend_persistent_ttl(env, &MilestoneKey::MilestoneClaimed(agreement_id, milestone_id));
 
         // Decrement the accounted escrow balance to keep invariants consistent
         // across subsequent iterations of this batch.
@@ -1292,6 +1319,7 @@ pub fn batch_claim_milestones(
             &MilestoneKey::MilestoneEscrowBalance(agreement_id),
             &escrow_balance.saturating_sub(amount),
         );
+        crate::storage::extend_persistent_ttl(env, &MilestoneKey::MilestoneEscrowBalance(agreement_id));
 
         token_client.transfer(&contract_address, &contributor, &amount);
 
@@ -1321,6 +1349,7 @@ pub fn batch_claim_milestones(
             &MilestoneKey::Status(agreement_id),
             &AgreementStatus::Completed,
         );
+        crate::storage::extend_persistent_ttl(env, &MilestoneKey::Status(agreement_id));
     }
 
     #[allow(clippy::needless_borrow)]
@@ -1467,11 +1496,13 @@ fn create_payroll_agreement_internal(
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     let employees: Vec<EmployeeInfo> = Vec::new(env);
     env.storage()
         .persistent()
         .set(&StorageKey::AgreementEmployees(agreement_id), &employees);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::AgreementEmployees(agreement_id));
 
     add_to_employer_agreements(env, &employer, agreement_id);
 
@@ -1663,6 +1694,7 @@ fn create_escrow_agreement_internal(
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     // Add the contributor as the sole employee
     let mut employees: Vec<EmployeeInfo> = Vec::new(env);
@@ -1674,6 +1706,7 @@ fn create_escrow_agreement_internal(
     env.storage()
         .persistent()
         .set(&StorageKey::AgreementEmployees(agreement_id), &employees);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::AgreementEmployees(agreement_id));
 
     add_to_employer_agreements(env, &employer, agreement_id);
 
@@ -1858,9 +1891,11 @@ pub fn add_employee_to_agreement(
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
     env.storage()
         .persistent()
         .set(&StorageKey::AgreementEmployees(agreement_id), &employees);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::AgreementEmployees(agreement_id));
 
     emit_employee_added(
         env,
@@ -1939,6 +1974,7 @@ pub fn activate_agreement(env: &Env, agreement_id: u128) {
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_agreement_activated(env, AgreementActivatedEvent { agreement_id });
     record_entry(
@@ -1979,6 +2015,7 @@ pub fn set_arbiter(env: &Env, caller: Address, arbiter: Address) -> bool {
     env.storage()
         .persistent()
         .set(&StorageKey::Arbiter, &arbiter);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Arbiter);
     emit_set_arbiter(env, ArbiterSetEvent { arbiter });
 
     // Record a lifecycle audit entry so `set_arbiter` is observable in the
@@ -2077,6 +2114,7 @@ pub fn set_grace_extension_policy(
     env.storage()
         .persistent()
         .set(&StorageKey::GracePeriodExtensionPolicy, &policy);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::GracePeriodExtensionPolicy);
     Ok(())
 }
 
@@ -2135,6 +2173,7 @@ pub fn extend_grace_period(
         &StorageKey::GracePeriodExtensionSeconds(agreement_id),
         &new_total,
     );
+    crate::storage::extend_persistent_ttl(env, &StorageKey::GracePeriodExtensionSeconds(agreement_id));
 
     emit_grace_period_extended(
         env,
@@ -2220,6 +2259,7 @@ pub fn raise_dispute(env: &Env, caller: Address, agreement_id: u128) -> Result<(
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_dsipute_raised(env, DisputeRaisedEvent { agreement_id });
     record_entry(
@@ -2472,6 +2512,7 @@ fn resolve_dispute_core(
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_dsipute_resolved(
         env,
@@ -2525,6 +2566,7 @@ pub fn set_exchange_rate_admin(
     env.storage()
         .persistent()
         .set(&StorageKey::ExchangeRateAdmin, &admin);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::ExchangeRateAdmin);
 
     Ok(())
 }
@@ -2973,6 +3015,7 @@ pub fn claim_payroll_multisig(
         env.storage()
             .persistent()
             .set(&StorageKey::LargePaymentThreshold, &t);
+            crate::storage::extend_persistent_ttl(env, &StorageKey::LargePaymentThreshold);
     }
     result
 }
@@ -3700,6 +3743,7 @@ pub fn claim_time_based(env: &Env, agreement_id: u128) -> Result<(), PayrollErro
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_payment_sent(
         env,
@@ -3748,6 +3792,7 @@ fn get_next_agreement_id(env: &Env) -> u128 {
     let key = StorageKey::NextAgreementId;
     let id: u128 = env.storage().persistent().get(&key).unwrap_or(1);
     env.storage().persistent().set(&key, &(id + 1));
+    crate::storage::extend_persistent_ttl(env, &key);
     id
 }
 
@@ -3890,6 +3935,7 @@ pub fn pause_agreement(env: &Env, agreement_id: u128) -> Result<(), PayrollError
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_agreement_paused(env, AgreementPausedEvent { agreement_id });
 
@@ -3947,6 +3993,7 @@ pub fn resume_agreement(env: &Env, agreement_id: u128) {
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_agreement_resumed(env, AgreementResumedEvent { agreement_id });
 }
@@ -4003,6 +4050,7 @@ pub fn pause_milestone_agreement(env: Env, agreement_id: u128) -> Result<(), Pay
         &MilestoneKey::Status(agreement_id),
         &AgreementStatus::Paused,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Status(agreement_id));
 
     AgreementPausedEvent { agreement_id }.publish(&env);
 
@@ -4060,6 +4108,7 @@ pub fn resume_milestone_agreement(env: Env, agreement_id: u128) -> Result<(), Pa
         &MilestoneKey::Status(agreement_id),
         &AgreementStatus::Active,
     );
+    crate::storage::extend_persistent_ttl(&env, &MilestoneKey::Status(agreement_id));
 
     AgreementResumedEvent { agreement_id }.publish(&env);
 
@@ -4075,6 +4124,7 @@ fn add_to_employer_agreements(env: &Env, employer: &Address, agreement_id: u128)
         .unwrap_or(Vec::new(env));
     agreements.push_back(agreement_id);
     env.storage().persistent().set(&key, &agreements);
+    crate::storage::extend_persistent_ttl(env, &key);
 }
 
 // -----------------------------------------------------------------------------
@@ -4135,6 +4185,7 @@ pub fn cancel_agreement(env: &Env, agreement_id: u128) {
     env.storage()
         .persistent()
         .set(&StorageKey::Agreement(agreement_id), &agreement);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
 
     emit_agreement_cancelled(env, AgreementCancelledEvent { agreement_id });
     record_entry(
@@ -4335,6 +4386,7 @@ pub fn pause_employer_agreements(env: &Env, employer: Address) -> Result<u32, Pa
                 env.storage()
                     .persistent()
                     .set(&StorageKey::Agreement(agreement_id), &agreement);
+                    crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
                 emit_agreement_paused(env, AgreementPausedEvent { agreement_id });
                 paused_count += 1;
             }
@@ -4355,6 +4407,7 @@ pub fn pause_employer_agreements(env: &Env, employer: Address) -> Result<u32, Pa
                             &MilestoneKey::Status(agreement_id),
                             &AgreementStatus::Paused,
                         );
+                        crate::storage::extend_persistent_ttl(env, &MilestoneKey::Status(agreement_id));
                         AgreementPausedEvent { agreement_id }.publish(env);
                         paused_count += 1;
                     }
@@ -4412,6 +4465,7 @@ pub fn unpause_employer_agreements(env: &Env, employer: Address) -> Result<u32, 
                 env.storage()
                     .persistent()
                     .set(&StorageKey::Agreement(agreement_id), &agreement);
+                    crate::storage::extend_persistent_ttl(env, &StorageKey::Agreement(agreement_id));
                 emit_agreement_resumed(env, AgreementResumedEvent { agreement_id });
                 unpaused_count += 1;
             }
@@ -4431,6 +4485,7 @@ pub fn unpause_employer_agreements(env: &Env, employer: Address) -> Result<u32, 
                         &MilestoneKey::Status(agreement_id),
                         &AgreementStatus::Active,
                     );
+                    crate::storage::extend_persistent_ttl(env, &MilestoneKey::Status(agreement_id));
                     AgreementResumedEvent { agreement_id }.publish(env);
                     unpaused_count += 1;
                 }
@@ -4481,6 +4536,7 @@ pub fn set_emergency_guardians(env: &Env, guardians: Vec<Address>) {
     env.storage()
         .persistent()
         .set(&StorageKey::EmergencyGuardians, &guardians);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::EmergencyGuardians);
 }
 
 /// Gets emergency guardians
@@ -4532,12 +4588,14 @@ pub fn propose_emergency_pause(
     env.storage()
         .persistent()
         .set(&StorageKey::PendingPause, &pause_state);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::PendingPause);
 
     let mut approvals: Vec<Address> = Vec::new(env);
     approvals.push_back(caller);
     env.storage()
         .persistent()
         .set(&StorageKey::PauseApprovals, &approvals);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::PauseApprovals);
 
     Ok(())
 }
@@ -4577,6 +4635,7 @@ pub fn approve_emergency_pause(env: &Env, caller: Address) -> Result<(), Payroll
     env.storage()
         .persistent()
         .set(&StorageKey::PauseApprovals, &approvals);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::PauseApprovals);
 
     let threshold = (guardians.len() / 2) + 1;
     if approvals.len() >= threshold {
@@ -4606,6 +4665,7 @@ fn execute_emergency_pause(env: &Env) -> Result<(), PayrollError> {
     env.storage()
         .persistent()
         .set(&StorageKey::EmergencyPause, &pending);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::EmergencyPause);
     env.storage().persistent().remove(&StorageKey::PendingPause);
     env.storage()
         .persistent()
@@ -4635,6 +4695,7 @@ pub fn emergency_pause(env: &Env) -> Result<(), PayrollError> {
     env.storage()
         .persistent()
         .set(&StorageKey::EmergencyPause, &pause_state);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::EmergencyPause);
 
     Ok(())
 }
@@ -4660,6 +4721,7 @@ pub fn emergency_unpause(env: &Env) -> Result<(), PayrollError> {
     env.storage()
         .persistent()
         .set(&StorageKey::EmergencyPause, &pause_state);
+        crate::storage::extend_persistent_ttl(env, &StorageKey::EmergencyPause);
 
     Ok(())
 }

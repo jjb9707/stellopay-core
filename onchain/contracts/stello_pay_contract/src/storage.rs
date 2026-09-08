@@ -588,6 +588,7 @@ impl DataKey {
     pub fn set_employee_count(env: &Env, agreement_id: u128, count: u32) {
         let key: DataKey = DataKey::AgreementEmployeeCount(agreement_id);
         env.storage().persistent().set(&key, &count);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get employee address at a specific index in an agreement
@@ -600,6 +601,7 @@ impl DataKey {
     pub fn set_employee(env: &Env, agreement_id: u128, employee_index: u32, employee: &Address) {
         let key: DataKey = DataKey::AgreementEmployee(agreement_id, employee_index);
         env.storage().persistent().set(&key, employee);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get salary per period for an employee at a specific index
@@ -643,6 +645,7 @@ impl DataKey {
     pub fn set_agreement_activation_time(env: &Env, agreement_id: u128, timestamp: u64) {
         let key: DataKey = DataKey::AgreementActivationTime(agreement_id);
         env.storage().persistent().set(&key, &timestamp);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get period duration in seconds for an agreement
@@ -655,6 +658,7 @@ impl DataKey {
     pub fn set_agreement_period_duration(env: &Env, agreement_id: u128, duration: u64) {
         let key: DataKey = DataKey::AgreementPeriodDuration(agreement_id);
         env.storage().persistent().set(&key, &duration);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get token address for an agreement
@@ -667,6 +671,7 @@ impl DataKey {
     pub fn set_agreement_token(env: &Env, agreement_id: u128, token: &Address) {
         let key: DataKey = DataKey::AgreementToken(agreement_id);
         env.storage().persistent().set(&key, token);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get total paid amount for an agreement
@@ -679,6 +684,7 @@ impl DataKey {
     pub fn set_agreement_paid_amount(env: &Env, agreement_id: u128, amount: i128) {
         let key: DataKey = DataKey::AgreementPaidAmount(agreement_id);
         env.storage().persistent().set(&key, &amount);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get escrow balance for an agreement and token.
@@ -728,6 +734,7 @@ impl DataKey {
             updated_at: env.ledger().timestamp(),
         };
         env.storage().persistent().set(&key, &info);
+        extend_persistent_ttl(env, &key);
     }
 
     /// Get optional configured max-age (seconds) for FX rates.
@@ -742,6 +749,7 @@ impl DataKey {
         env.storage()
             .persistent()
             .set(&StorageKey::ExchangeRateMaxAgeSeconds, &seconds);
+            extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxAgeSeconds);
     }
 
     /// Get optional configured max single-update deviation in basis points.
@@ -756,6 +764,7 @@ impl DataKey {
         env.storage()
             .persistent()
             .set(&StorageKey::ExchangeRateMaxDeviationBps, &bps);
+            extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxDeviationBps);
     }
 
     /// Get optional absolute upper-bound sanity limit for FX rates.
@@ -770,12 +779,14 @@ impl DataKey {
         env.storage()
             .persistent()
             .set(&StorageKey::ExchangeRateMaxRateSanityBound, &max_rate);
+            extend_persistent_ttl(env, &StorageKey::ExchangeRateMaxRateSanityBound);
     }
 
     /// Marks an agreement's grace period as finalized.
     pub fn set_agreement_grace_period_finalized(env: &Env, agreement_id: u128) {
         let key = DataKey::AgreementGracePeriodFinalized(agreement_id);
         env.storage().persistent().set(&key, &());
+        extend_persistent_ttl(env, &key);
     }
 
     /// Returns `true` if the agreement's grace period has been finalized.
